@@ -1,0 +1,53 @@
+Sure, here is a script for AWS that achieves the same task using the AWS SDK for Python (Boto3). The script starts an EC2 instance and schedules it to stop at a specific time in the Indian Standard Time (IST) timezone.
+
+import boto3
+from datetime import datetime, timedelta
+
+# Set variables
+aws_access_key_id = 'your_aws_access_key_id'
+aws_secret_access_key = 'your_aws_secret_access_key'
+region = 'your_aws_region'
+instance_id = 'your_instance_id'
+
+# Connect to AWS
+session = boto3.Session(
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key,
+    region_name=region
+)
+ec2 = session.resource('ec2')
+
+# Start the instance
+instance = ec2.Instance(instance_id)
+instance.start()
+
+# Schedule the instance to stop at a specific time
+# The schedule time is set to 2 hours from the current time in IST timezone
+schedule_time = datetime.now(tz=None) + timedelta(hours=2)
+schedule_time_str = schedule_time.strftime('%Y-%m-%dT%H:%M:%SZ')  # Format the schedule time as required by AWS (YYYY-MM-DDTHH:MM:SSZ)
+
+# Stop the instance at the scheduled time
+response = ec2.meta.client.stop_instances(InstanceIds=[instance_id], ScheduledStopTime=schedule_time_str)
+
+
+Explanation of the code:
+
+    Import the necessary Boto3 modules.
+    Set the AWS access key ID, secret access key, region, and instance ID as variables.
+    Connect to the AWS account using the provided access key ID and secret access key.
+    Start the EC2 instance using the start_instances method.
+    Calculate the schedule time by adding 2 hours to the current time in the IST timezone.
+    Format the schedule time as a string in the required format for AWS (YYYY-MM-DDTHH:MM:SSZ).
+    Stop the EC2 instance at the scheduled time using the stop_instances method.
+
+Note: The schedule time is set to 2 hours from the current time for testing purposes. You can adjust the schedule time as per your requirement.
+
+To schedule the script to run at a specific time, you can use AWS Lambda and CloudWatch Events. Here are the steps to schedule the script:
+
+    Create a new Lambda function in the AWS Management Console.
+    Upload the Python script as a deployment package.
+    Set the Lambda function handler to lambda_function.lambda_handler.
+    Create a new CloudWatch Events rule to trigger the Lambda function at a specific time.
+    Set the time zone to IST (UTC+05:30) while creating the CloudWatch Events rule.
+
+The CloudWatch Events rule will trigger the Lambda function at the specified time, which will start the EC2 instance and schedule it to stop at a specific time.
